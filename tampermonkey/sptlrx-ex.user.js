@@ -3,6 +3,7 @@
 // @namespace    https://github.com/yadokani389/sptlrx-ex
 // @version      0.1.0
 // @description  Relay Spotify Web Player lyric state to local sptlrx-ex HTTP relay.
+// @license      MIT
 // @author       yadokani389
 // @match        https://open.spotify.com/*
 // @run-at       document-idle

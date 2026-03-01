@@ -39,14 +39,17 @@ You can also install it into your profile and run it as a command:
 nix profile add github:yadokani389/sptlrx-ex
 ```
 
-2. Open Tampermonkey dashboard.
-3. Create a new script and paste `tampermonkey/sptlrx-ex.user.js`.
-4. Save and enable the script.
-5. Open `https://open.spotify.com`, then use Tampermonkey menu commands:
+2. Install the userscript from Greasy Fork:
+
+   - https://greasyfork.org/en/scripts/567922-sptlrx-ex-relay-bridge
+
+   (Or install manually: open Tampermonkey dashboard, create a new script, then paste `tampermonkey/sptlrx-ex.user.js`.)
+
+3. Open `https://open.spotify.com`, then use Tampermonkey menu commands:
    - `sptlrx-ex: Set relay URL`
    - `sptlrx-ex: Reset relay URL`
    - `sptlrx-ex: Show relay URL`
-6. Open Spotify's lyrics view for the current track, then play a track with synced lyrics.
+4. Open Spotify's lyrics view for the current track, then play a track with synced lyrics.
 
 If the lyrics panel is closed, the relay reports `lyrics_panel_closed` and cannot detect the current lyric line.
 
