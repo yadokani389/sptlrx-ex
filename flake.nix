@@ -78,8 +78,14 @@
           };
 
           packages = {
-            default = sptlrx-ex;
             inherit sptlrx-ex;
+            default = sptlrx-ex;
+            ci = pkgs.buildEnv {
+              name = "ci-dependencies";
+              paths = [
+                toolchain
+              ];
+            };
           };
 
           devShells = {
