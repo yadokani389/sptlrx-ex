@@ -56,6 +56,9 @@
       if (parsed.hostname !== "127.0.0.1" && parsed.hostname !== "localhost") {
         return DEFAULT_RELAY_URL;
       }
+      if (parsed.pathname === "/") {
+        parsed.pathname = "/lyrics";
+      }
       parsed.hash = "";
       return parsed.toString().replace(/\/$/, "");
     } catch {
