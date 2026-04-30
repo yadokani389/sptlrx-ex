@@ -124,7 +124,6 @@ fn sanitize_lines(value: Option<&Value>) -> Vec<String> {
         .iter()
         .filter_map(Value::as_str)
         .map(str::trim)
-        .filter(|line| !line.is_empty())
         .take(600)
         .map(ToOwned::to_owned)
         .collect()
