@@ -409,3 +409,33 @@ fn frame_signature(frame: &[StyledLine]) -> String {
     }
     signature
 }
+
+#[cfg(test)]
+mod tests {
+    use super::resolve_current_index;
+    use crate::model::{CurrentLine, LyricState};
+
+    #[test]
+    fn resolve_current_index_prefers_payload_index_for_duplicate_lines() {
+        let lines = vec![
+            String::from("same"),
+            String::from("same"),
+            String::from("same"),
+        ];
+        let state = LyricState {
+            title: String::new(),
+            artists: Vec::new(),
+            status: String::from("ok"),
+            lines_count: lines.len(),
+            lyrics_panel_open: true,
+            current_line: Some(CurrentLine {
+                text: String::from("same"),
+                index: 1,
+            }),
+            lines: lines.clone(),
+            timestamp: String::new(),
+        };
+
+        assert_eq!(resolve_current_index(&state, &lines), 1);
+    }
+}

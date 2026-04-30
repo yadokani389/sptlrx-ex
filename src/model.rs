@@ -149,3 +149,28 @@ fn sanitize_current_line(value: Option<&Value>) -> Option<CurrentLine> {
 fn timestamp_now() -> String {
     Timestamp::now().to_string()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::LyricState;
+
+    #[test]
+    fn from_json_bytes_preserves_empty_lines_to_keep_indexes_aligned() {
+        let state = LyricState::from_json_bytes(
+            br#"{
+              "title": "song",
+              "artists": ["artist"],
+              "status": "ok",
+              "lines": ["first", "", "second"],
+              "linesCount": 3,
+              "lyricsPanelOpen": true,
+              "currentLine": { "text": "second", "index": 2 },
+              "timestamp": "2026-04-30T00:00:00Z"
+            }"#,
+        )
+        .expect("payload should parse");
+
+        assert_eq!(state.lines, ["first", "", "second"]);
+        assert_eq!(state.current_line.expect("current line").index, 2);
+    }
+}
