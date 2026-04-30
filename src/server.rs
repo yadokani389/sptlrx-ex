@@ -158,7 +158,10 @@ async fn handle_not_found(State(_state): State<AppState>, _request: Request) -> 
 async fn handle_lyrics_post(state: AppState, request: Request) -> Response {
     let body = match to_bytes(request.into_body(), MAX_BODY_BYTES + 1).await {
         Ok(body) => body,
-        Err(_) => return error_response(StatusCode::PAYLOAD_TOO_LARGE, "payload_too_large"),
+        Err(error) if error.to_string().contains("length limit") => {
+            return error_response(StatusCode::PAYLOAD_TOO_LARGE, "payload_too_large");
+        }
+        Err(_) => return error_response(StatusCode::BAD_REQUEST, "invalid_body"),
     };
 
     if body.len() > MAX_BODY_BYTES {

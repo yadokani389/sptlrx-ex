@@ -100,13 +100,17 @@ impl FullRenderer {
     }
 
     fn draw(&mut self, frame: &[StyledLine]) -> Result<()> {
+        let mut out = stdout();
+        if !out.is_terminal() {
+            return Ok(());
+        }
+
         let signature = frame_signature(frame);
         if signature == self.last_frame_signature {
             return Ok(());
         }
         self.last_frame_signature = signature;
 
-        let mut out = stdout();
         execute!(out, MoveTo(0, 0), Clear(ClearType::All))?;
 
         for (index, line) in frame.iter().enumerate() {
