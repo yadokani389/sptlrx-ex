@@ -23,13 +23,9 @@ const MAX_BODY_BYTES: usize = 512 * 1024;
 
 #[derive(Clone)]
 struct AppState {
-    inner: Arc<Mutex<BridgeState>>,
+    latest_state: Arc<Mutex<LyricState>>,
+    renderer: Arc<Mutex<Renderer>>,
     mode: &'static str,
-}
-
-struct BridgeState {
-    latest_state: LyricState,
-    renderer: Renderer,
 }
 
 #[derive(Serialize)]
@@ -70,10 +66,8 @@ pub async fn run_with_listener(args: CliArgs, listener: TcpListener) -> Result<(
     renderer.start().context("failed to start renderer")?;
 
     let state = AppState {
-        inner: Arc::new(Mutex::new(BridgeState {
-            latest_state: LyricState::waiting(),
-            renderer,
-        })),
+        latest_state: Arc::new(Mutex::new(LyricState::waiting())),
+        renderer: Arc::new(Mutex::new(renderer)),
         mode,
     };
 
@@ -108,8 +102,8 @@ pub async fn run_with_listener(args: CliArgs, listener: TcpListener) -> Result<(
 }
 
 async fn stop_renderer(state: &AppState) {
-    let mut guard = state.inner.lock().await;
-    if let Err(error) = guard.renderer.stop() {
+    let mut renderer = state.renderer.lock().await;
+    if let Err(error) = renderer.stop() {
         eprintln!("[relay] failed to stop renderer: {error}");
     }
 }
@@ -143,8 +137,8 @@ async fn handle_state(State(state): State<AppState>, request: Request) -> Respon
     }
 
     let latest_state = {
-        let guard = state.inner.lock().await;
-        guard.latest_state.clone()
+        let latest_state = state.latest_state.lock().await;
+        latest_state.clone()
     };
 
     json_response(
@@ -181,10 +175,16 @@ async fn handle_lyrics_post(state: AppState, request: Request) -> Response {
         }
     };
 
-    let mut guard = state.inner.lock().await;
-    guard.latest_state = parsed.clone();
-    if let Err(error) = guard.renderer.render(&parsed) {
-        eprintln!("[relay] renderer error: {error}");
+    {
+        let mut latest_state = state.latest_state.lock().await;
+        *latest_state = parsed.clone();
+    }
+
+    {
+        let mut renderer = state.renderer.lock().await;
+        if let Err(error) = renderer.render(&parsed) {
+            eprintln!("[relay] renderer error: {error}");
+        }
     }
 
     no_content_response(StatusCode::NO_CONTENT)
